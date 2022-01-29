@@ -1,0 +1,17 @@
+# Classic
+numpy
+pandas==0.24.0
+logzero
+
+# Image manipulatin
+Pillow
+
+# Scraping Specific
+scrapy
+scrapy-splash
+selenium
+
+# Dev env
+# jupyter
+# jupyterlab
+# autopep8

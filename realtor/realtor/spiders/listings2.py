@@ -25,7 +25,7 @@ class Listings2Spider(CrawlSpider):
                              headers={'User-Agent': self.user_agent}, callback=self.parse_item, endpoint="execute", args={'lua_source': self.script})
 
     rules = (
-        Rule(LinkExtractor(restrict_xpaths="//div[@class='cardCon']"), callback='parse_item', follow=True, process_request='set_user_agent'),
+        Rule(LinkExtractor(restrict_xpaths="//div[@class='listingCard card']//a[@class='blockLink listingDetailsLink']"), callback='parse_item', follow=True, process_request='set_user_agent'),
     )
     def set_user_agent(self, request):
         request.headers['User-Agent'] = self.user_agent
@@ -33,5 +33,5 @@ class Listings2Spider(CrawlSpider):
 
     def parse_item(self, response):
         yield {
-            'Address': response.xpath("//div[@class='listingCardAddress']/text()").get()
+            'Address': response.xpath("//div[@id='listingPrice']/text()").get()
         }
