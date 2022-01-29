@@ -15,10 +15,18 @@ BOT_NAME = 'demo_airbnb'
 SPIDER_MODULES = ['demo_airbnb.spiders']
 NEWSPIDER_MODULE = 'demo_airbnb.spiders'
 
-
+DOWNLOADER_CLIENT_TLS_METHOD = "TLSv1.2"
 USER_AGENT = get_random_agent() 
 ROBOTSTXT_OBEY = False
 DOWNLOAD_DELAY = 20
+DOWNLOADER_MIDDLEWARES = {
+    # The priority of 560 is important, because we want this middleware to kick in just before the scrapy built-in `RetryMiddleware`.
+    'scrapy_cloudflare_middleware.middlewares.CloudFlareMiddleware': 560
+}
+
+DUPEFILTER_CLASS = "scrapy.dupefilters.BaseDupeFilter"
+USER_AGENT_LIST = "C:\\Users\\Ryan\\projects\\demo_airbnb\\demo_airbnb\\useragents.txt"
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'demo_airbnb (+http://www.yourdomain.com)'
 
