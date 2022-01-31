@@ -18,7 +18,7 @@ NEWSPIDER_MODULE = 'demo_airbnb.spiders'
 DOWNLOADER_CLIENT_TLS_METHOD = "TLSv1.2"
 USER_AGENT = get_random_agent() 
 ROBOTSTXT_OBEY = False
-DOWNLOAD_DELAY = 20
+DOWNLOAD_DELAY = 3
 DOWNLOADER_MIDDLEWARES = {
     # The priority of 560 is important, because we want this middleware to kick in just before the scrapy built-in `RetryMiddleware`.
     'scrapy_cloudflare_middleware.middlewares.CloudFlareMiddleware': 560

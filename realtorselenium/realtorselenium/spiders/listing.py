@@ -6,6 +6,7 @@ from shutil import which
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 import time
+from scrapy_cloudflare_middleware.middlewares import CloudFlareMiddleware
 
 class ListingSpider(scrapy.Spider):
     name = 'listing'
