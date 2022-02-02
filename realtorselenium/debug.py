@@ -3,4 +3,4 @@ spider = listing.ListingSpider()
 
 spider.start_requests()
 
-spider.parse()
+spider.parse(spider.re)
