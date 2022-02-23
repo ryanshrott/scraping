@@ -19,12 +19,13 @@ class ListingItem(scrapy.Item):
     url = scrapy.Field()
 
     # general info 
-    price = scrapy.Field()
-    location = scrapy.Field()
-    descriptions = scrapy.Field()
-    amenities = scrapy.Field()
     title = scrapy.Field()
     propertyType = scrapy.Field()
+    price = scrapy.Field()
+    location = scrapy.Field()
+    hood = scrapy.Field()
+    descriptions = scrapy.Field()
+    amenities = scrapy.Field()
     personCapacity = scrapy.Field()
     numberOfBedrooms = scrapy.Field()
     numberOfBeds = scrapy.Field()

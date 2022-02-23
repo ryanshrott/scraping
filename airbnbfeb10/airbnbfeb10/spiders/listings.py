@@ -1,3 +1,4 @@
+from numpy import var
 import scrapy
 import json
 from urllib.parse import urlencode
@@ -7,11 +8,13 @@ import time
 from datetime import datetime
 import base64
 from urllib.parse import urlencode
+import pandas as pd
 
 class ListingsSpider(scrapy.Spider):
     name = 'listings'
     allowed_domains = ['airbnb.ca']
-    nPages = 3
+    nPages = 7
+    nItemsPerPage=50
     nItem = 0
     # logging 
     today_date = datetime.today()
@@ -48,25 +51,45 @@ class ListingsSpider(scrapy.Spider):
         }
     
     @staticmethod
-    def query_listings(page, itemsPerGrid=50):
-        query = {"operationNames":"ExploreSections","locale":"en-CA","currency":"CAD","_cb":"0p0h2v80gbppbv0agiauz17tjo9e",
-        "variables":"{\"isInitialLoad\":true,\"hasLoggedIn\":true,\"cdnCacheSafe\":false,\"source\":\"EXPLORE\",\"exploreRequest\":{\"metadataOnly\":false,\"version\":\"1.8.3\",\"itemsPerGrid\":" + f"{itemsPerGrid}" +",\"flexibleTripLengths\":[\"weekend_trip\"],\"datePickerType\":\"calendar\",\"placeId\":\"ChIJpTvG15DL1IkRd8S0KlBVNTI\",\"refinementPaths\":[\"/homes\"],\"tabId\":\"home_tab\",\"checkin\":\"2022-04-12\",\"checkout\":\"2022-04-13\",\"source\":\"structured_search_input_header\",\"searchType\":\"autocomplete_click\",\"federatedSearchSessionId\":\"e0168175-d333-413f-b3b3-5d9bb36cd9cf\",\"itemsOffset\":" + f"{str(itemsPerGrid*page)}" +",\"sectionOffset\":3,\"query\":\"Toronto, ON\",\"cdnCacheSafe\":false,\"treatmentFlags\":[\"flex_destinations_june_2021_launch_web_treatment\",\"new_filter_bar_v2_fm_header\",\"merch_header_breakpoint_expansion_web\",\"flexible_dates_12_month_lead_time\",\"storefronts_nov23_2021_homepage_web_treatment\",\"web_remove_duplicated_params_fields\",\"flexible_dates_options_extend_one_three_seven_days\",\"super_date_flexibility\",\"micro_flex_improvements\",\"micro_flex_show_by_default\",\"search_input_placeholder_phrases\",\"pets_fee_treatment\"],\"screenSize\":\"large\",\"isInitialLoad\":true,\"hasLoggedIn\":true},\"removeDuplicatedParams\":true}","extensions":"{\"persistedQuery\":{\"version\":1,\"sha256Hash\":\"1cb8bde810f2d0469ed603796a970876815987bc4ff91f05bea3bf707e6f7aa2\"}}"}
+    def query_listings(pageIdx, itemsPerGrid=50, hood='Moore Park, Toronto, ON'):
+       # variables = "{\"isInitialLoad\":true,\"hasLoggedIn\":true,\"cdnCacheSafe\":false,\"source\":\"EXPLORE\",\"exploreRequest\":{\"metadataOnly\":false,\"version\":\"1.8.3\",\"itemsPerGrid\":" + f"{itemsPerGrid}" +",\"flexibleTripLengths\":[\"weekend_trip\"],\"datePickerType\":\"calendar\",\"placeId\":\"ChIJpTvG15DL1IkRd8S0KlBVNTI\",\"refinementPaths\":[\"/homes\"],\"tabId\":\"home_tab\",\"checkin\":\"2022-04-12\",\"checkout\":\"2022-04-13\",\"source\":\"structured_search_input_header\",\"searchType\":\"autocomplete_click\",\"federatedSearchSessionId\":\"e0168175-d333-413f-b3b3-5d9bb36cd9cf\",\"itemsOffset\":" + f"{str(itemsPerGrid*page)}" +",\"sectionOffset\":3,\"query\":\"Toronto, ON\",\"cdnCacheSafe\":false,\"treatmentFlags\":[\"flex_destinations_june_2021_launch_web_treatment\",\"new_filter_bar_v2_fm_header\",\"merch_header_breakpoint_expansion_web\",\"flexible_dates_12_month_lead_time\",\"storefronts_nov23_2021_homepage_web_treatment\",\"web_remove_duplicated_params_fields\",\"flexible_dates_options_extend_one_three_seven_days\",\"super_date_flexibility\",\"micro_flex_improvements\",\"micro_flex_show_by_default\",\"search_input_placeholder_phrases\",\"pets_fee_treatment\"],\"screenSize\":\"large\",\"isInitialLoad\":true,\"hasLoggedIn\":true},\"removeDuplicatedParams\":true}"
+       # variables_dict = json.loads(variables)
+        variables_dict = {'isInitialLoad': True, 'hasLoggedIn': True, 'cdnCacheSafe': False, 'source': 'EXPLORE', 
+        'exploreRequest': {'checkin': '2022-05-11', 'checkout': '2022-05-12', 'metadataOnly': False, 'version': '1.8.3', 'itemsPerGrid': 20,
+        'refinementPaths': ['/homes'], 'searchType': 'AUTOSUGGEST', 'tabId': 'home_tab', 'flexibleTripLengths': ['weekend_trip'], 
+        'datePickerType': 'calendar', 'federatedSearchSessionId': '5ae20964-250a-43a3-8273-d6513d4d5278', 'itemsOffset': 40, 'sectionOffset': 3, 
+        'query': '', 'cdnCacheSafe': False, 'treatmentFlags': ['flex_destinations_june_2021_launch_web_treatment', 'new_filter_bar_v2_fm_header', 
+        'merch_header_breakpoint_expansion_web', 'flexible_dates_12_month_lead_time', 'storefronts_nov23_2021_homepage_web_treatment', 
+        'web_remove_duplicated_params_fields', 'flexible_dates_options_extend_one_three_seven_days', 'super_date_flexibility', 'micro_flex_improvements', 
+        'micro_flex_show_by_default', 'search_input_placeholder_phrases', 'pets_fee_treatment'], 'screenSize': 'large', 'isInitialLoad': True, 'hasLoggedIn': True}, 'removeDuplicatedParams': True}
+        variables_dict['exploreRequest']['itemsPerGrid'] = str(itemsPerGrid)
+        variables_dict['exploreRequest']['itemsOffset'] = str(int(pageIdx * itemsPerGrid)) 
+        variables_dict['exploreRequest']['query'] = hood
+       
+        query = {"operationName":"ExploreSections","locale":"en-CA","currency":"CAD","_cb":"1hsnscy0qdlads0z1x5rt0b9d0aj",
+        "variables": json.dumps(variables_dict),
+        "extensions":"{\"persistedQuery\":{\"version\":1,\"sha256Hash\":\"9018729a46757ca5654222f9ee71ab11fa840e38d1ceabe7763fcb37719e5648\"}}"        
+        }
         return query
     
     def start_requests(self):
-        for page in range(1, self.nPages+1):
-            querystring = ListingsSpider.query_listings(page)
-            url = f"https://www.airbnb.ca/api/v3/ExploreSections?{urlencode(querystring)}"
+        hoods = pd.read_json('torontohoods.json').hood.tolist()[:3]
+        for hood in hoods:
+            for pageIdx in range(0, self.nPages):
+                querystring = ListingsSpider.query_listings(pageIdx, self.nItemsPerPage, hood + ', Toronto, ON')
+                url = f"https://www.airbnb.ca/api/v3/ExploreSections?{urlencode(querystring)}"
 
-            yield scrapy.Request(
-                url=url,
-                method='GET',
-                headers=self.headers,
-                callback=self.parse_listings,
-            )
+                yield scrapy.Request(
+                    url=url,
+                    method='GET',
+                    headers=self.headers,
+                    callback=self.parse_listings,
+                    meta={'hood': hood}
+                )
     
     def parse_listings(self, response):
         print('PARSE')
+        hood = response.request.meta['hood']
         json_data = json.loads(response.body)
         print(type(json_data))
         def get_query(encoded):
@@ -87,6 +110,7 @@ class ListingsSpider(scrapy.Spider):
                                         timeStamp=datetime.now().strftime("%y%m%d-%H%M%S"),
                                         listingId=listingInfo['id'],
                                         url=f"https://www.airbnb.ca/rooms/{listingInfo['id']}",
+                                        hood=hood,
                                         price=item.get('pricingQuote').get('price').get('total').get('amountFormatted')
                                             )
                     self.nItem += 1
@@ -172,10 +196,6 @@ class ListingsSpider(scrapy.Spider):
                 if(numItems > 2):
                     listing['numberOfBathrooms'] = d['section']['detailItems'][3]['title'] 
 
-     #   print('Description: ', listing['descriptions'])  
-     #   print('*********************************************************************************************')
-      #  print('Amenities: ', listing['amenities'])
-      #  print('*********************************************************************************************')
         url_avail = "https://www.airbnb.ca/api/v3/PdpAvailabilityCalendar"
         querystring = {"operationName":"PdpAvailabilityCalendar","locale":"en-CA","currency":"CAD","_cb":"1so46um0i1hlnn1ide7l016vtvhu","variables":
             "{\"request\":{\"count\":12,\"listingId\":" + f'\"{id}\"' + ",\"month\":2,\"year\":2022}}","extensions":"{\"persistedQuery\":{\"version\":1,\"sha256Hash\":\"8f08e03c7bd16fcad3c92a3592c19a8b559a0d0855a84028d1163d4733ed9ade\"}}"}
@@ -188,7 +208,6 @@ class ListingsSpider(scrapy.Spider):
                             meta={'listing': listing})
 
     def parse_availability(self, response):
-        print('parse_availability IN')
         listing = response.request.meta['listing']
         json_data = json.loads(response.body)
         with open('avail.json', 'w') as f:
@@ -198,6 +217,5 @@ class ListingsSpider(scrapy.Spider):
         for month in json_data.get('data').get('merlin').get('pdpAvailabilityCalendar').get('calendarMonths'):
             for day in month.get('days'):
                 availability[day.get('calendarDate')] = day.get('available')
-        print('parse_availability OUT')
         #listing['occupancyTable'] = availability
         yield listing

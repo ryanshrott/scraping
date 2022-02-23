@@ -27,6 +27,7 @@ DOWNLOADER_MIDDLEWARES = {
     'random_useragent.RandomUserAgentMiddleware': 400
 }
 USER_AGENT_LIST = "C:\\Users\\Ryan\\projects\\airbnbfeb10\\airbnbfeb10\\useragents.txt"
+#DUPEFILTER_CLASS = 'scrapy.dupefilters.BaseDupeFilter'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
