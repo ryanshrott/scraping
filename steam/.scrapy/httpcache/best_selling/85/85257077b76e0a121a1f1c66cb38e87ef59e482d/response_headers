@@ -1,0 +1,14 @@
+Content-Length: 15978
+Server: nginx
+Content-Type: application/json; charset=utf-8
+Expires: Mon, 26 Jul 1997 05:00:00 GMT
+Cache-Control: no-cache
+X-Frame-Options: DENY
+Vary: Accept-Encoding, Origin
+Vary: Accept-Encoding
+Content-Encoding: gzip
+Strict-Transport-Security: max-age=300
+Date: Wed, 23 Mar 2022 11:29:56 GMT
+Set-Cookie: steamCountry=CA%7C8a0b2374bc2ca262a5b1d932a10fb0eb; Path=/; Secure; HttpOnly; SameSite=None
+Set-Cookie: browserid=2652064102454279215; Expires=Thu, 23 Mar 2023 11:29:55 GMT; Path=/; Secure; SameSite=None
+Set-Cookie: sessionid=d916b3e706d4dfb4caee93c8; Path=/; Secure; SameSite=None
